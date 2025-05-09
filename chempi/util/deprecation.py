@@ -26,8 +26,8 @@ class Deprecation(object):
     _deprecations = {}
 	
 	def __init__(self, last_supported_verion, will_be_missing_in = None, use_instead = None, issue = None, issue_url = None, warning = DeprecationWarning):
-		if not isinstance(last_supported_version, (str, tuple, list)) and callable(last_supported_version):
-			raise ValueError("Parameter `last_supported_version` is not one of str, tuple, list")
+	    if not isinstance(last_supported_version, (str, tuple, list)) and callable(last_supported_version):
+		    raise ValueError("Parameter `last_supported_version` is not one of str, tuple, list")
 		
 		self.last_supported_version = last_supported_version
 		self.will_be_missing_in = will_be_missing_in
