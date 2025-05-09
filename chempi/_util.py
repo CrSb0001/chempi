@@ -6,7 +6,7 @@ If Python 2 support is really required, then we at the very least don't want
 any issues of more time spent importing chempi by determining if there's an
 ImportError.
 
-However, note that I don't intend for chempi to actually support Python 2, only
+However, note that ChemPi is not intended to actually support Python 2, only
 Python 3.
 '''
 
@@ -29,6 +29,15 @@ def prodpow(bases, exponents):
         res.append(_)
     
     return res
+
+def get_backend(backend):
+    if isinstance(backend, str):
+        backend = __import__(backend)
+    
+    if backend is None:
+        import numpy as backend
+    
+    return backend
 
 def int_div(p, q):
     '''
