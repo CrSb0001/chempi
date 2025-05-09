@@ -4,8 +4,7 @@ General utils and exceptions
 
 from functools import wraps
 
-__url__ = '' # Remove when __url__ is setup in ..
-
+from .. import __url__
 from .deprecation import Deprecation
 
 def identity(x):
