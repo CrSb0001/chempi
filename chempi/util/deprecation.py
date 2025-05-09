@@ -30,14 +30,14 @@ class Deprecation(object):
 			raise ValueError("Parameter `last_supported_version` is not one of str, tuple, list")
 		
 		self.last_supported_version = last_supported_version
-		self.will_be_missing_in     = will_be_missing_in
-		self.use_instead            = use_instead
-		self.issue                  = issue
-		self.issue_url              = issue_url
-		self.warning                = warning
-		self.warning_msg            = self._warning_msg_template()
+		self.will_be_missing_in = will_be_missing_in
+		self.use_instead = use_instead
+		self.issue = issue
+		self.issue_url = issue_url
+		self.warning = warning
+		self.warning_msg = self._warning_msg_template()
 	
-	@classmethod
+    @classmethod
     def inspect(cls, obj):
         return cls._deprecations[obj]
 		
