@@ -36,7 +36,6 @@ class Deprecation(object):
 		self.issue_url              = issue_url
 		self.warning                = warning
 		self.warning_msg            = self._warning_msg_template()
-		pass
 	
 	@classmethod
     def inspect(cls, obj):
