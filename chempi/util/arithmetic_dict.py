@@ -23,10 +23,19 @@ class ArithDict(defaultdict):
     def copy(self):
         return self.__class__(self.default_factory, self.items())
     
+    def __add__(self, other):
+        _self = self.copy()
+        _self += other
+        return _self
+    
     def __iadd__(self, other):
         try:
             for k, v in other.items():
-                self[k] += v
+                if k not in self:
+                    self[k] = v
+                
+                else:
+                    self[k] += v
         
         except AttributeError:
             for k in self:
@@ -34,11 +43,75 @@ class ArithDict(defaultdict):
         
         return self
     
+    def __radd__(self, other):
+        return self + other
+    
+    def __sub__(self, other):
+        _self = self.copy()
+        _self -= other
+        return _self
+    
     def __isub__(self, other):
-        pass
-    ...
-    # To do: add, sub, radd, rsub, and so on and so on.
-    ...
+        try:
+            for k, v in other.items():
+                if k not in self:
+                    self[k] = v
+                
+                else:
+                    self[k] += v
+        
+        except AttributeError:
+            for k in self:
+                self[k] -= other
+        
+        return self
+    
+    def __rsub__(self, other):
+        return self - other
+    
+    def __mul__(self, other):
+        _self = self.copy()
+        _self *= other
+        return _self
+    
+    def __imul__(self, other):
+        _imul(self, other)
+        return self
+    
+    def __rmul__(self, other):
+        return self * other
+    
+    def __truediv__(self, other):
+        _self = self.copy()
+        _self /= other
+        return _self
+    
+    def __itruediv__(self, other):
+        _itruediv(self, other)
+        return self
+    
+    def __rtruediv__(self, other):
+        return self.__class__(self.default_factory, {k: other / v for k, v in self.items()})
+    
+    def __floordiv__(self, other):
+        _self = self.copy()
+        _self //= other
+        return _self
+    
+    def __ifloordiv__(self, other):
+        if hasattr(other, 'keys'):
+            for k in set(chain(self.keys(), other.keys())):
+                self[k] = self[k] // other[k]
+        
+        else:
+            for k in self:
+                self[k] //= other
+        
+        return self
+    
+    def __rfloordiv__(self, other):
+        return self.__class__(self.default_factory, {k: other // v for k, v in self.items()})
+    
     def __eq__(self, other):
         return self._discrepancy(other, self._element_seq)
     
@@ -58,7 +131,7 @@ class ArithDict(defaultdict):
             return True
     
     def __repr__(self):
-        return '{}({}, {})'.format(self.__class__.__name__, repr(self.default_factory), dict(self))
+        return f'{self.__class__.__name__}({repr(self.default_factory)}, {dict(self)})'
     
     def _element_seq(self, a, b):
         return a == b
