@@ -14,6 +14,24 @@ import copy
 import sys
 # ...
 
+from .results import ParseResults, _ParseResultsWithOffset
+
+class __compat__(__config_flags):
+    '''
+    A cross-version compatibility config for parser featurs that will be released in the future.
+    
+    By setting values in ``__compat__`` to True, these features can be enabled in previous releases
+    for compatibility testing.
+    '''
+    _type_desc = 'compatibility'
+    
+    collect_and_All_tokens = True
+    
+    _all_names = [__ for __ in locals() if not __.startswith('_')]
+    _fixed_names = '''
+        collect_and_All_tokens
+        '''.split()
+
 class __diag__(__config_flags):
     '''
     Helper for the Diagnostics class
@@ -71,14 +89,6 @@ def enable_all_warnings() -> None:
 
 # Hide abstract class so it cannot be accidentally accessed.
 del __config_flags
-
-# ------------------
-class ParseResults:
-    '''
-    delete later
-    '''
-    pass
-# ------------------
 
 _single_arg_builtins = {
     all, any, len, list, max, min, reversed, set, sorted, sum, tuple
