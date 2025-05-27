@@ -6,6 +6,7 @@ from collections     import defaultdict, namedtuple, OrderedDict
 from collections.abc import ItemsView, Mapping
 from functools       import wraps
 from itertools       import product
+from types           import GeneratorType
 
 from .. import __url__
 from .deprecation import Deprecation
@@ -23,6 +24,62 @@ def identity(x):
     '''
     return x
 
+def defaultnamedtuple_(typename, field_names, defaults = ()):
+    Tuple = namedtuple(typename, field_names)
+    Tuple.__new__.__defaults__ = (None,) * len(Tuple._fields)
+    
+    if isinstance(defaults, Mapping):
+        Tuple.__new__.__defaults__ = tuple(Tuple(**defaults))
+    
+    else:
+        num_missing = len(Tuple._fields) - len(defaults)
+        defaults    = (None,) * num_missing + tuple(defaults)
+        Tuple.__new__.__defaults__ = tuple(Tuple(*defaults))
+    
+    return Tuple
+
+def multi_indexed_cases(
+    od,
+    *,
+    dict_ = OrderedDict,
+    apply_keys = None,
+    apply_vals = None,
+    apply_retr = list,
+    named_indx = False
+):
+    if isinstance(od, OrderedDict):
+        pass
+    
+    else:
+        if hasattr(od, 'items'):
+            od = od.items()
+        
+        if isinstance(od, (list, tuple, GeneratorType, ItemsView)):
+            od = OrderedDict(od)
+        
+        else:
+            raise NotImplementedError('Expected an OrderedDict')
+    
+    k, v = tuple(map(apply_keys or identity, od.keys())), tuple(od.values())
+    MultiIndex = (
+        namedtuple('MultiIndex', k) if named_indx else lambda *args: tuple(args)
+    )
+    _generator = (
+        (
+            MultiIndex(*mi),
+            dict_(
+                [
+                    (
+                        k_,
+                        (apply_vals or identity)(v_[i])
+                    ) for k_, v_, i in zip(k, v, mi)
+                ]
+            ),
+        )
+        for mi in product(*map(range, map(len, v)))
+    )
+    return (apply_retr or identity)(_generator)
+
 class NoConvergence(Exception):
     pass
 
@@ -31,7 +88,12 @@ class ChemPiDeprecationWarning(DeprecationWarning):
 
 def deprecated(*args, **kwargs):
     '''Helper to :class: `Deprecation` for using ChemPiDeprecationWarning.'''
-    return Deprecation(*args, issues_url = lambda s: __url__ + '/issues/' + s.strip('gh-'), warning = ChemPiDeprecationWarning, **kwargs)
+    return Deprecation(
+        *args,
+        issues_url = lambda s: __url__ + '/issues/' + s.strip('gh-'),
+        warning = ChemPiDeprecationWarning,
+        **kwargs
+    )
 
 class AttrContainer(object):
     '''Class method used to turn e.g. a dict object into a module-like object.'''
@@ -75,7 +137,15 @@ class DeferredImport(object):
                 obj = __import__(self._modname)
             
             else:
-                obj = getattr(__import__(self._modname, globals(), locals(), [self._arg]), self._arg)
+                obj = getattr(
+                    __import__(
+                        self._modname,
+                        globals(),
+                        locals(),
+                        [self._arg]
+                    ),
+                    self._arg
+                )
             
             if self._decorators is not None:
                 for deco in self._decorators:
