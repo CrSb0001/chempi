@@ -1,0 +1,98 @@
+# See https://docs.github.com/articles/about-code-owners for more
+# details regarding a .github/CODEOWNERS file.
+
+# =======
+# Purpose
+# =======
+#
+# An entry in this file does not imply 'ownership', but instead
+# that those listed take an intereset as part of the project
+# and will be automatically be added as reviewers to PRs that
+# affect the following files.
+#
+# =========
+# Structure
+# =========
+#
+# The file is to be organized by alphabetical order in the relevant
+# sections, to keep related files together where possible.
+# For example, documentation, code, and tests for a given item
+# should be in the same place.
+#
+# While there is no 'best practice' rules for alignment of
+# Github usernames, for this project it is recommended to
+# align usernames to Column 30, or the next multiple of 4
+# if it doesn't fit.
+#
+# ======================
+#     Top-level sections
+# ======================
+# * Configuration, Testing, CI/CD
+#     project-wide config files, linting, continuous integration tools
+# * Documentation
+#     broader sections of documentation and doc tools
+# * Platform Support (todo - add spec)
+#     files relating to platform-specific support
+# * Stdlib
+#     standard library (from chempi/)
+#     and related files (i.e. from tests and docs)
+# * Exclusions
+#     files excluded from .github/CODEOWNERS that
+#     should go at the very end since final matching
+#     rules takes precedence
+
+# Example of alignment on Column 30 and next 5 possible alignments [align this at every '+']
+# (use this as needed, but remove all occurences execpt this example before pushing PR):
+#############################+---+---+---+---+---+
+
+# ----------------------------------------------------------------------------
+# Configuration, Testing, CI/CD
+# ----------------------------------------------------------------------------
+
+# Github and related scripts
+.github/                     @CrSb0001
+
+# VSCode configuration and related scripts
+.vscode/                     @CrSb0001
+
+# ----------------------------------------------------------------------------
+# Documentation
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Platform Support (todo - add spec)
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Stdlib
+# ----------------------------------------------------------------------------
+
+# Initialization
+chempi/__init__.py           @CrSb0001
+
+# Constants
+chempi/symbolic.py           @CrSb0001
+
+# Formatter
+chempi/formatter/            @CrSb0001
+
+# Misc.
+chempi/_release.py           @CrSb0001
+chempi/_url.py               @CrSb0001
+chempi/_util.py              @CrSb0001
+
+
+# Parsing/Printing utilities
+chempi/parser/               @CrSb0001
+chempi/printing/             @CrSb0001
+
+# Utilities
+chempi/linalg/               @CrSb0001
+chempi/util/                 @CrSb0001
+chempi/_util.py              @CrSb0001
+
+# ----------------------------------------------------------------------------
+# Exclusions
+# ----------------------------------------------------------------------------
+
+# Exclusions go at the very end
