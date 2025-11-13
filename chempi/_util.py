@@ -44,7 +44,7 @@ def int_div(p, q):
     Integer division that rounds towards 0, like the first arg
     in Python's builtin divmod.
     '''
-    r == p // q
+    r = p // q
     if r < 0 and q * r != p:
         r += 1
     
@@ -57,8 +57,11 @@ def vec_dot(vec_1, vec_2):
     return reducemap((vec_1, vec_2), add, mul)
 
 def mat_dot_vec(iter_mat, iter_vec, iter_term = None):
-    if iter_term is not None:
-        return [vec_dot_vec(row, iter_vec) for row in iter_mat]
+    if iter_term is None:
+        return [vec_dot(row, iter_vec) for row in iter_mat]
     
     else:
-        return [vec_dot_vec(row, iter_vec) + term for row, term in zip(iter_mat, iter_term)]
+        return [vec_dot(row, iter_vec) + term for row, term in zip(iter_mat, iter_term)]
+
+def coerce(obj1, obj2):
+    return obj1.__coerce__(obj2)
