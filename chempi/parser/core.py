@@ -4,10 +4,12 @@ Helper utilities for parsing chemical formulas.
 from __future__ import annotations # For sys.version < (3, 11, 0)
 
 from abc       import ABC, abstractmethod
+from collections import deque
 from enum      import Enum
 from functools import cached_property
 
-from typing import Any, Callable, Generator, NamedTuple, Optional, Sequence, TextIO, Union
+from typing import (
+    Any, Callable, Generator, NamedTuple, Optional, Sequence, TextIO, Union)
 
 import copy
 # import re
@@ -16,12 +18,17 @@ import sys
 
 from .results import ParseResults, _ParseResultsWithOffset
 
+
+class __config_flags(ABC):
+    pass
+
 class __compat__(__config_flags):
     '''
-    A cross-version compatibility config for parser featurs that will be released in the future.
+    A cross-version compatibility config for parser features
+    that will be released in the future.
     
-    By setting values in ``__compat__`` to True, these features can be enabled in previous releases
-    for compatibility testing.
+    By setting values in ``__compat__`` to True, these features can be
+    enabled in previous releases for compatibility testing.
     '''
     _type_desc = 'compatibility'
     
@@ -32,7 +39,7 @@ class __compat__(__config_flags):
         collect_and_All_tokens
         '''.split()
 
-class __diag__(__config_flags):
+class __diag__(__config_flags): # type: ignore
     '''
     Helper for the Diagnostics class
     '''
@@ -52,8 +59,16 @@ class __diag__(__config_flags):
     _debug_names = [name for name in _all_names if name.startswith('enable_debug')]
     
     @classmethod
+    def disable(cls, warning) -> None:
+        setattr(cls, warning, False)
+
+    @classmethod
+    def enable(cls, warning) -> None:
+        setattr(cls, warning, True)
+
+    @classmethod
     def enable_all_warnings(cls) -> None:
-        for name in cls._warning_names:
+        for name in cls._warn_names:
             cls.enable(name)
 
 class Diagnostics(Enum):
@@ -101,6 +116,7 @@ ParseImplReturnType = tuple[int, Any]
 PostParseReturnType = Union[ParseResults, Sequence[ParseResults]]
 
 ParseCondition = Union[Callable[[], bool], Callable[[ParseResults], bool], Callable[[int, ParseResults], bool], Callable[[str, int, ParseResults], bool]]
+ParseAction = Callable[[None]]
 ParseFailAction = Callable[[str, int, 'ParserElement', Exception], None]
 
 DebugStartAction = Callable[[str, int, 'ParserElement', bool], None]
@@ -120,7 +136,7 @@ class _ParseActionIndexError(Exception):
 class ParserElement(ABC):
     DEFAULT_WHITE_CHARS: str = '\x09\x0a\x0d\x20'
     VERBOSE_STACKTRASE: bool = False
-    _literal_string_class: type = None
+    _literal_string_class: type | None = None
     
     @staticmethod
     def set_def_whitespace_chars(chars: str) -> None:
@@ -128,11 +144,11 @@ class ParserElement(ABC):
         ParserElement.DEFAULT_WHITE_CHARS = chars
         
         # Update default whitespace for all parser expressions defined in the module.
-        for expr in _builtin_exprs:
+        for expr in _builtin_exprs: # type: ignore
             if expr.copy_default_white_chars:
                 expr.white_chars = set(chars)
     
-    @staticmethod
+    @classmethod
     def inline_literals_using(cls: type) -> None:
         ParserElement._literal_string_class = cls
     
@@ -148,9 +164,9 @@ class ParserElement(ABC):
     def __init__(self, savelist: bool = False) -> None:
         self.parse_action: list[ParseAction] = list()
         self.fail_action: Optional[ParseFailAction] = None
-        self.custom_name: str = None
+        self.custom_name: str | None = None
         self._default_name: Optional[str] = None
-        self.results_name: str = None
+        self.results_name: str | None = None
         self.save_as_list: bool = savelist
         self.skip_whitespace: bool = True
         self.white_chars = set(ParserElement.DEFAULT_WHITE_CHARS)
@@ -169,6 +185,9 @@ class ParserElement(ABC):
         self.suppress_warnings_: list[Diagnostics] = []
         self.show_in_diagram: bool = True
     
+    def __iter__(self):
+        yield self
+
     @property
     def may_return_empty(self):
         return self._may_return_empty
@@ -215,3 +234,6 @@ class ParserElement(ABC):
             copy_.white_chars = set(ParserElement.DEFAULT_WHITE_CHARS)
         
         return copy_
+
+    def recurse(self):
+        return self
